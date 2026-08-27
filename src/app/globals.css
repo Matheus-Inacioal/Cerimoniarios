@@ -1,0 +1,153 @@
+/* =============================================================================
+   Cerimonial360 — globals.css
+   FONTE ÚNICA DA VERDADE para cor, vidro e tinta.
+   Valores extraídos do protótipo aprovado (cerimonial360-liquid-glass.html).
+
+   REGRA DE OURO: nenhuma tela ou componente deve conter hex de cor, padding de
+   card, radius de card ou fórmula de vidro escrita à mão. Tudo vem daqui, via
+   tokens, consumidos pelos primitivos (Card, GlassSurface, SectionLabel, etc).
+   ============================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* ---- Ambiente litúrgico ativo (trocado em runtime pelo LiturgicalProvider) ---- */
+  /* Default: Verde / Tempo Comum. O provider sobrescreve --amb-h, --amb-s e --lit. */
+  --amb-h: 155;
+  --amb-s: 30%;
+
+  /* --lit = cor litúrgica VERDADEIRA. Só para indicadores: badge, ponto, barra de
+     acento, ícone de aba ativa. NUNCA como fundo de card. */
+  --lit: #2E6B4F;
+  --lit-on: #1B4530;
+
+  /* ---- Campo ambiente (fundo da página + washes que o vidro deixa transparecer) ---- */
+  --page: hsl(var(--amb-h) var(--amb-s) 96%);
+  --wash-a: hsl(var(--amb-h) calc(var(--amb-s) + 25%) 82% / .55);
+  --wash-b: hsl(var(--amb-h) calc(var(--amb-s) + 15%) 88% / .40);
+
+  /* ---- Superfícies sólidas (conteúdo) ---- */
+  --card: #FFFFFF;
+
+  /* ---- Tinta ---- */
+  --text-primary: #1A1917;
+  --text-secondary: #5F5C56;
+  --text-tertiary: #77736C;
+
+  /* ---- Linha e sombra ---- */
+  --line: rgba(26, 25, 23, .10);
+  --card-shadow: 0 1px 2px rgba(26, 25, 23, .05);
+
+  /* ---- Liquid Glass ---- */
+  --glass: rgba(255, 255, 255, .58);
+  --glass-line: rgba(255, 255, 255, .75);
+  --glass-shadow: 0 8px 32px rgba(26, 25, 23, .10);
+  --spec: rgba(255, 255, 255, .85);        /* linha de luz especular no topo */
+  --glass-blur: blur(26px) saturate(180%);
+
+  /* ---- Marca da paróquia (dinâmica, derivada do brasão). NUNCA toca --lit. ---- */
+  --brand: #4F46E5;
+  --brand-hover: #4338CA;
+  --brand-on: #FFFFFF;
+
+  /* ---- Geometria (fonte única — não redefina em telas) ---- */
+  --radius-card: 16px;
+  --radius-bar: 22px;
+  --pad-card: 20px;
+  --gap-card: 16px;
+
+  /* ---- Movimento ---- */
+  --dur-ambient: 640ms;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+
+  /* ---- Semânticas (não confundir com cores litúrgicas) ---- */
+  --success: #2E7D5B;
+  --warning: #B8860B;
+  --danger: #B3261E;
+  --info: #2E5C8A;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+[data-theme="dark"] {
+  --lit: #4E9A78;                /* clareado ~12% p/ contraste no escuro */
+  --lit-on: #B9E3CE;
+
+  --page: hsl(var(--amb-h) calc(var(--amb-s) - 8%) 8%);
+  --wash-a: hsl(var(--amb-h) calc(var(--amb-s) + 10%) 40% / .48);
+  --wash-b: hsl(var(--amb-h) calc(var(--amb-s) - 5%) 28% / .42);
+
+  --card: #1F1E22;
+
+  --text-primary: #F1EFEB;
+  --text-secondary: #A8A49C;
+  --text-tertiary: #918D85;
+
+  --line: rgba(255, 255, 255, .10);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+
+  --glass: rgba(46, 44, 50, .55);
+  --glass-line: rgba(255, 255, 255, .14);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, .45);
+  --spec: rgba(255, 255, 255, .22);
+}
+
+/* =============================================================================
+   Base
+   ============================================================================= */
+* { box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--page);
+  transition: background var(--dur-ambient) var(--ease);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Campo ambiente: manchas de cor litúrgica atrás de TODO o app.
+   É isto que o vidro deixa transparecer. Deve ficar em z-index baixo,
+   fixo, atrás do conteúdo. Renderize um <div class="ambient-field" /> uma vez
+   no layout raiz (ou via <AmbientField/>). */
+.ambient-field {
+  position: fixed;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(50% 40% at 18% 8%, var(--wash-a), transparent 70%),
+    radial-gradient(45% 45% at 88% 78%, var(--wash-b), transparent 70%);
+  transition: background var(--dur-ambient) var(--ease);
+}
+
+/* Títulos de celebração / display */
+.font-display { font-family: var(--font-display); font-weight: 500; letter-spacing: -.01em; }
+
+/* Layout wrapper responsive padding-left */
+.layout-main-wrapper {
+  padding-left: 0;
+  transition: padding-left var(--dur-ambient) var(--ease);
+}
+
+@media (min-width: 1024px) {
+  .layout-main-wrapper {
+    padding-left: var(--sidebar-w, 260px);
+  }
+}
+
+/* =============================================================================
+   Degradação obrigatória do vidro (P4) — vidro vira sólido, sem mexer layout
+   ============================================================================= */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .glass-surface { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: var(--card) !important; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-surface { background: var(--card) !important; }
+}
+[data-a11y="on"] .glass-surface { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; background: var(--card) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, .ambient-field, body { transition-duration: 1ms !important; }
+}

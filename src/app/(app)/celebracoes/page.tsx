@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import Link from "next/link";
 import { Card, SectionLabel, CelebracaoTitulo } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/button";
 import { CorLiturgicaBadge, type CorLiturgicaKey } from "@/components/liturgical/cor-liturgica-badge";
@@ -54,7 +55,7 @@ function getDiasDoMes(ano: number, mes: number) {
 }
 
 export default function CelebracoesPage() {
-  const [dataAtual, setDataAtual] = useState({ ano: 2026, mes: 6 });
+  const [dataAtual, setDataAtual] = useState({ ano: new Date().getUTCFullYear(), mes: new Date().getUTCMonth() });
   const [mapaLiturgico, setMapaLiturgico] = useState<Record<string, CorDoDia>>({});
 
   const dias = useMemo(() => getDiasDoMes(dataAtual.ano, dataAtual.mes), [dataAtual.ano, dataAtual.mes]);
@@ -102,10 +103,12 @@ export default function CelebracoesPage() {
             Calendário litúrgico e celebrações da paróquia
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4" />
-          Nova celebração
-        </Button>
+        <Link href="/celebracoes/formulario">
+          <Button>
+            <Plus className="h-4 w-4" />
+            Nova celebração
+          </Button>
+        </Link>
       </div>
 
       <Card>

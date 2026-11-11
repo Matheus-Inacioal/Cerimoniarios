@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { Plus, Search, Filter, Mail, Phone } from "lucide-react";
+import { Plus, Search, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { Card, CelebracaoTitulo } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/button";
@@ -79,11 +79,24 @@ const pessoasMock = [
 export default function PessoasPage() {
 
   const [cerimoniarios, setCerimoniarios] = useState<Cerimoniarios[]>([])
+  const [nomeBusca, setNomeBusca] = useState("");
 
   useEffect(() => {
     requestBackend({url: `/Cerimoniarios/Listar`})
       .then((resp) => setCerimoniarios(resp.data));
   }, []);
+
+  const nomeBuscaNormalizado = nomeBusca
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("pt-BR");
+  const cerimoniariosFiltrados = cerimoniarios.filter((cerimoniario) =>
+    cerimoniario.nome
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLocaleLowerCase("pt-BR")
+      .includes(nomeBuscaNormalizado),
+  );
 
   function btnAdicionarPessoa() {
     console.log('Adicionar Pessoa')
@@ -95,7 +108,7 @@ export default function PessoasPage() {
         <div>
           <CelebracaoTitulo className="text-2xl">Pessoas</CelebracaoTitulo>
           <p className="text-sm text-[var(--text-secondary)] mt-1">
-            {cerimoniarios.length} membros da equipe do cerimonial
+            {cerimoniariosFiltrados.length} membros da equipe do cerimonial
           </p>
         </div>
         <Link href="/pessoas/form/novo">
@@ -113,16 +126,14 @@ export default function PessoasPage() {
             type="text"
             placeholder="Buscar por nome..."
             className="w-full rounded-xl border border-[var(--line)] bg-[var(--card)] py-2.5 pl-9 pr-4 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:border-[var(--brand)] focus:outline-none transition-all"
+            value={nomeBusca}
+            onChange={(event) => setNomeBusca(event.target.value)}
           />
         </div>
-        <Button variant="outline">
-          <Filter className="h-4 w-4" />
-          Filtros
-        </Button>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
-        {cerimoniarios.map((cerimoniario) => (
+        {cerimoniariosFiltrados.map((cerimoniario) => (
           <Card key={cerimoniario.id}>
             <div className="flex items-start gap-3">
               <Avatar className="h-11 w-11 shrink-0 ring-0 shadow-sm">
